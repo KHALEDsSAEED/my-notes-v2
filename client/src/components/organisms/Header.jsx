@@ -22,31 +22,29 @@ const Header = () => {
     };
 
     return (
-        <Navbar className="border-b-2 sticky flex items-center content-center top-0 h-[10vh] z-30">
+        <Navbar className="border-b-2 sticky top-0 h-[10vh] z-30">
             <Link to='/' className='self-center whitespace-nowrap text-xl font-semibold dark:text-white'>
                 <Logo />
             </Link>
             <div className='flex gap-2 md:order-2'>
-                {/* Display user avatar if available, else display a random avatar */}
                 {currentUser ? (
-                    <Dropdown className='z-30 border-2 rounded-sm border-[#fecb2e]' arrowIcon={false} inline label={
-                        <Avatar 
-                        alt='user' 
-                        img={currentUser.photoURL || 'https://avatar.iran.liara.run/public'} 
-                        rounded  
-                        className="border-2 border-[#fecb2e] rounded-full"
+                    <Dropdown className='z-3 border-2 rounded-sm border-[#fecb2e]' arrowIcon={false} inline label={
+                        <Avatar
+                            alt='user'
+                            img={currentUser.photoURL || 'https://avatar.iran.liara.run/public'}
+                            rounded
+                            className="border-2 border-[#fecb2e] rounded-full"
                         />
                     }>
                         <Dropdown.Header>
-                            <span className='block text-lg truncate'>{currentUser.displayName || currentUser.email.trim().split('@')[0]}</span>
                             <span className='block text-lg truncate'>{currentUser.email}</span>
                         </Dropdown.Header>
                         <Link to='/dashboard?tab=profile'>
                             <Dropdown.Item className='text-lg' icon={HiViewGrid}>Profile</Dropdown.Item>
                         </Link>
                         <Dropdown.Divider />
-                        <Dropdown.Item className='text-lg flex items-center hover:text-[#fecb2e]' icon={HiLogout} onClick={handleSignOut}>
-                            <span>Sign Out</span>
+                        <Dropdown.Item className='text-lg' icon={HiLogout}>
+                            <Button onClick={handleSignOut} content='Sign Out' />
                         </Dropdown.Item>
                     </Dropdown>
                 ) : (
@@ -56,34 +54,33 @@ const Header = () => {
                 )}
                 <Navbar.Toggle />
             </div>
-            <Navbar.Collapse className="z-20 md:bg-transparent bg-white md:border-0 border-2 rounded-sm border-[#fecb2e]">
-                <Link
-                    to='/'
-                    className={`text-lg ${path === '/' ? 'text-[#fecb2e]' : 'text-gray-700'}`}
-                >
-                    <Navbar.Link as={'div'} 
-                    className={`text-lg hover:bg-slate-100 hover:!text-[#fecb2e] ${path === '/' ? 'text-[#fecb2e]' : 'text-gray-700'}`}>
+            <Navbar.Collapse className="z-30 md:bg-transparent bg-white md:border-0 border-2 rounded-sm border-[#fecb2e]">
+                <Navbar.Link as={'div'} className="hover:bg-slate-200">
+                    <Link
+                        to='/'
+                        className={`text-lg ${path === '/' ? 'text-[#fecb2e]' : 'text-gray-700'} hover:text-[#fecb2e]`}
+                    >
                         Home
-                    </Navbar.Link>
-                </Link>
-                <Link
-                    to='/about'
-                    className={`text-lg ${path === '/about' ? 'text-[#fecb2e]' : 'text-gray-700'} `}
-                >
-                    <Navbar.Link as={'div'} className="hover:bg-slate-100 hover:!text-[#fecb2e]">
+                    </Link>
+                </Navbar.Link>
+                <Navbar.Link as={'div'} className="hover:bg-slate-200">
+                    <Link
+                        to='/about'
+                        className={`text-lg ${path === '/about' ? 'text-[#fecb2e]' : 'text-gray-700'} hover:text-[#fecb2e]`}
+                    >
                         About
-                    </Navbar.Link>
-                </Link>
+                    </Link>
+                </Navbar.Link>
                 {
                     currentUser && (
-                        <Link
-                            to='/dashboard?tab=notes'
-                            className={`text-lg ${path === '/dashboard' ? 'text-[#fecb2e]' : 'text-gray-700'} `}
-                        >
-                            <Navbar.Link as={'div'} className="hover:bg-slate-100 hover:!text-[#fecb2e]">
+                        <Navbar.Link as={'div'} className="hover:bg-slate-200">
+                            <Link
+                                to='/dashboard?tab=notes'
+                                className={`text-lg ${path === '/dashboard' ? 'text-[#fecb2e]' : 'text-gray-700'} hover:text-[#fecb2e]`}
+                            >
                                 Dashboard
-                            </Navbar.Link>
-                        </Link>
+                            </Link>
+                        </Navbar.Link>
                     )
                 }
             </Navbar.Collapse>
