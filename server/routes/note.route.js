@@ -16,6 +16,13 @@ const router = express.Router();
  *   get:
  *     summary: Retrieve a list of notes
  *     tags: [Notes]
+ *     parameters:
+ *       - in: query
+ *         name: user
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Email of the user whose notes to retrieve
  *     responses:
  *       200:
  *         description: A list of notes
@@ -25,6 +32,10 @@ const router = express.Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Note'
+ *       400:
+ *         description: Bad request. User email is required.
+ *       500:
+ *         description: Server error.
  */
 router.get('/', getNotes);
 
@@ -43,6 +54,14 @@ router.get('/', getNotes);
  *     responses:
  *       201:
  *         description: Note created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Note'
+ *       400:
+ *         description: Bad request. All fields are required.
+ *       500:
+ *         description: Server error.
  */
 router.post('/', createNote);
 
@@ -68,6 +87,16 @@ router.post('/', createNote);
  *     responses:
  *       200:
  *         description: Note updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Note'
+ *       400:
+ *         description: Bad request. Invalid ID or missing fields.
+ *       404:
+ *         description: Note not found.
+ *       500:
+ *         description: Server error.
  */
 router.put('/:id', updateNote);
 
@@ -87,6 +116,12 @@ router.put('/:id', updateNote);
  *     responses:
  *       200:
  *         description: Note deleted successfully
+ *       400:
+ *         description: Bad request. Invalid ID.
+ *       404:
+ *         description: Note not found.
+ *       500:
+ *         description: Server error.
  */
 router.delete('/:id', deleteNote);
 

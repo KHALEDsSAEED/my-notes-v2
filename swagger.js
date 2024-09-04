@@ -1,7 +1,5 @@
-// swagger.js
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import express from 'express';
 
 const swaggerOptions = {
     definition: {
@@ -13,16 +11,15 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: 'http://localhost:3000',
-                description: 'Local server',
+                url: 'https://my-notes-v2.onrender.com', // Updated server URL
+                description: 'Production server',
             },
         ],
     },
-    apis: ['./server/routes/*.js', './server/models/*.js'], 
+    apis: ['./server/routes/*.js', './server/models/*.js'],
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
-
 
 export default (app) => {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
