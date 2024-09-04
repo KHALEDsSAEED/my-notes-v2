@@ -8,7 +8,6 @@ import ClipLoader from 'react-spinners/ClipLoader';
 const categories = ['work', 'personal', 'study'];
 
 const DashboardNotes = () => {
-
     // Initialize state variables
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,15 +32,18 @@ const DashboardNotes = () => {
             }
 
             try {
-                const response = await fetch(`/api/notes?user=${currentUser.email}`);
+                const response = await fetch(`/api/notes?user=${encodeURIComponent(currentUser.email)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`, // Include token if required
+                    }
+                });
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch notes');
                 }
 
-                // Parse the response as JSON
                 const data = await response.json();
 
-                // Ensure data.notes is an array
                 if (!Array.isArray(data.notes)) {
                     throw new Error('Invalid response format');
                 }
@@ -62,10 +64,9 @@ const DashboardNotes = () => {
         };
 
         fetchNotes();
-    }, [currentUser, notes]);
+    }, [currentUser]);
 
     useEffect(() => {
-        // Function to filter notes based on search query, selected category, and sort order
         const filterNotes = () => {
             let filtered = notes;
             if (searchQuery) {
@@ -96,15 +97,16 @@ const DashboardNotes = () => {
         try {
             const response = await fetch(`/api/notes/${noteId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`, // Include token if required
+                }
             });
 
             if (!response.ok) {
                 throw new Error('Failed to delete note');
             }
 
-        
             setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
-
             setFilteredNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
 
             toast.success('Note deleted successfully!');
@@ -114,7 +116,6 @@ const DashboardNotes = () => {
         }
     };
 
-
     const handleEdit = (note) => {
         setCurrentNote(note);
         setFormValues({ title: note.title, text: note.text, category: note.category });
@@ -122,15 +123,16 @@ const DashboardNotes = () => {
     };
 
     const handleUpdate = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
 
         try {
             const response = await fetch(`/api/notes/${currentNote.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`, // Include token if required
                 },
-                body: JSON.stringify(formValues), 
+                body: JSON.stringify(formValues),
             });
 
             if (!response.ok) {
@@ -157,9 +159,6 @@ const DashboardNotes = () => {
         }
     };
 
-
-
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormValues(prevValues => ({
@@ -170,8 +169,7 @@ const DashboardNotes = () => {
 
     return (
         <div className="p-4 bg-gray-100">
-
-{loading && <div className="flex justify-center items-center h-64"><ClipLoader color="#000" loading={loading} size={50} /></div>}
+            {loading && <div className="flex justify-center items-center h-64"><ClipLoader color="#000" loading={loading} size={50} /></div>}
             {error && <p className="text-red-500">{error}</p>}
 
             {!loading && !error && (
@@ -266,19 +264,20 @@ const DashboardNotes = () => {
                                             <div className="flex gap-3">
                                                 <Button
                                                     onClick={() => handleEdit(note)}
-                                                    className="mt-2 bg-blue-500 hover:!bg-blue-600 text-white rounded-md"
+                                                    className="mt-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
                                                     content="Edit"
                                                 />
                                                 <Button
                                                     onClick={() => handleDelete(note.id)}
-                                                    className="mt-2 bg-red-500 hover:!bg-red-600 text-white rounded-md"
+                                                    className="mt-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
                                                     content="Delete"
                                                 />
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
-                            )}
+                            )
+                            }
                         </div>
                     )}
                 </div>

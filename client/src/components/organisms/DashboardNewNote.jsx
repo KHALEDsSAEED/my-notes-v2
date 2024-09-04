@@ -32,13 +32,15 @@ const DashboardNewNote = () => {
     // Function to handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         // Ensure the user is logged in
         if (!currentUser) {
             toast.error('Please login to add a new note'); // Display error message
             return;
         }
-    
+
+        const token = currentUser.stsTokenManager.accessToken; // Extract the token
+
         // Prepare data to be stored
         const noteData = {
             category: formData.category,
@@ -47,13 +49,13 @@ const DashboardNewNote = () => {
             user: currentUser.email, // Get email from Redux store
             date: new Date().toISOString(), // Add the current date in ISO format
         };
-    
+
         // Check if any field is empty and display an error message
         if (!noteData.category || !noteData.title || !noteData.text) {
             toast.error('Please fill in all fields');
             return;
         }
-    
+
         // Set loading to true to display a loading message to the user
         setLoading(true);
         try {
@@ -62,20 +64,21 @@ const DashboardNewNote = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Add token to request headers
                 },
                 body: JSON.stringify(noteData),
             });
-    
+
             if (!response.ok) {
                 throw new Error('Failed to create note');
             }
-    
+
             // Parse the response as JSON
             const data = await response.json();
             toast.success('Note added successfully'); // Display success message
             setLoading(false); // Set loading to false after successful submission
             navigate('/dashboard?tab=notes'); // Redirect to dashboard
-    
+
             // Clear form after submission
             setFormData({
                 category: '',
@@ -84,9 +87,10 @@ const DashboardNewNote = () => {
             });
         } catch (error) {
             toast.error('Error adding note: ' + error.message); // Display error message
+            setLoading(false); // Ensure loading is stopped in case of error
         }
     };
-    
+
     return (
         <div className="flex justify-center items-center md:min-h-[90vh] px-4 py-6 bg-gray-100">
             <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white p-6 rounded-lg shadow-lg">
@@ -134,7 +138,7 @@ const DashboardNewNote = () => {
                 />
             </form>
         </div>
-    )
+    );
 }
 
-export default DashboardNewNote
+export default DashboardNewNote;

@@ -7,6 +7,10 @@ import path from 'path';
 // Import the routes
 import notesRoute from './routes/note.route.js';
 
+import { verifyToken } from './utils/verifyToken.js';
+
+
+
 // Load the environment variables
 dotenv.config();
 
@@ -33,10 +37,21 @@ app.listen(3000, () => {
 
 swaggerDocs(app);
 
-app.use('/api/notes', notesRoute);
+app.use('/api/notes', verifyToken, notesRoute);
 
 app.use(express.static(path.join(__dirname, 'client/dist')));
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
+
+// Error handling middleware 
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+    res.status(statusCode).json({
+        sucess: false,
+        statusCode,
+        message,
+    });
 });
