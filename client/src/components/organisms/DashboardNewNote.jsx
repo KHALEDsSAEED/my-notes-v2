@@ -62,9 +62,10 @@ const DashboardNewNote = () => {
             // Make a POST request to the API route to create a new note
             const response = await fetch('/api/notes', {
                 method: 'POST',
+                // Include the token in the request headers to authenticate the user 
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Add token to request headers
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(noteData),
             });

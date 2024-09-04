@@ -14,8 +14,10 @@ const DashboardProfile = () => {
     const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
     const [photoURL, setPhotoURL] = useState(currentUser?.photoURL || '');
 
+    // Update the user profile with the new display name and photo URL
     const handleUpdateProfile = async () => {
         try {
+            // Update the user profile in Firebase Authentication with the new display name and photo URL
             await updateProfile(auth.currentUser, {
                 displayName: displayName,
                 photoURL: photoURL
@@ -23,8 +25,6 @@ const DashboardProfile = () => {
 
             // Dispatch the update to the Redux store
             dispatch(updateProfileSuccess({ displayName, photoURL }));
-
-            console.log(displayName, photoURL);
 
             toast.success('Profile updated successfully!');
         } catch (error) {

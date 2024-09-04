@@ -32,22 +32,28 @@ const DashboardNotes = () => {
             }
 
             try {
+                // Fetch notes from the API for the current user using the user email
                 const response = await fetch(`/api/notes?user=${encodeURIComponent(currentUser.email)}`, {
+                    // Include the Authorization header with the token for authentication
                     headers: {
-                        'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`, // Include token if required
+                        'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`,
                     }
                 });
 
+                // Throw an error if the response is not successful
                 if (!response.ok) {
                     throw new Error('Failed to fetch notes');
                 }
-
+                
+                // Parse the response JSON data
                 const data = await response.json();
 
+                // Throw an error if the response format is invalid
                 if (!Array.isArray(data.notes)) {
                     throw new Error('Invalid response format');
                 }
 
+                // Map the notes array to include the note id and set the notes state variable with the data 
                 const notesList = data.notes.map(note => ({
                     id: note._id,
                     ...note
@@ -67,6 +73,7 @@ const DashboardNotes = () => {
     }, [currentUser]);
 
     useEffect(() => {
+        // Filter notes based on the search query, selected category, and sort order
         const filterNotes = () => {
             let filtered = notes;
             if (searchQuery) {
@@ -93,12 +100,15 @@ const DashboardNotes = () => {
         filterNotes();
     }, [searchQuery, selectedCategory, sortOrder, notes]);
 
+    // Delete a note by its id from the database
     const handleDelete = async (noteId) => {
         try {
+            // Send a DELETE request to the API to delete the note by its id
             const response = await fetch(`/api/notes/${noteId}`, {
                 method: 'DELETE',
+                // Include the Authorization header with the token for authentication
                 headers: {
-                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`, // Include token if required
+                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`,
                 }
             });
 
@@ -106,6 +116,7 @@ const DashboardNotes = () => {
                 throw new Error('Failed to delete note');
             }
 
+            // Filter out the deleted note from the notes and filteredNotes state variables
             setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
             setFilteredNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
 
@@ -116,21 +127,25 @@ const DashboardNotes = () => {
         }
     };
 
+    // Set the current note and form values for editing the note 
     const handleEdit = (note) => {
         setCurrentNote(note);
         setFormValues({ title: note.title, text: note.text, category: note.category });
         setIsEditing(true);
     };
 
+    // Update the note in the database with the new form values
     const handleUpdate = async (e) => {
         e.preventDefault();
 
         try {
+            // Send a PUT request to the API to update the note by its id
             const response = await fetch(`/api/notes/${currentNote.id}`, {
                 method: 'PUT',
+                // Include the Authorization header with the token for authentication
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`, // Include token if required
+                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`,
                 },
                 body: JSON.stringify(formValues),
             });
@@ -141,11 +156,14 @@ const DashboardNotes = () => {
 
             const updatedNote = await response.json();
 
+            // Update the notes and filteredNotes state variables with the updated note
             setNotes(prevNotes =>
                 prevNotes.map(note =>
                     note.id === updatedNote._id ? updatedNote : note
                 )
             );
+
+            // Update the notes and filteredNotes state variables with the updated note
             setFilteredNotes(prevNotes =>
                 prevNotes.map(note =>
                     note.id === updatedNote._id ? updatedNote : note
@@ -159,6 +177,7 @@ const DashboardNotes = () => {
         }
     };
 
+    // Handle input change for the form fields
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormValues(prevValues => ({
