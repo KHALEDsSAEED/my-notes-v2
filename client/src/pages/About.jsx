@@ -3,8 +3,8 @@ import Logo from '../components/atoms/Logo';
 const About = () => {
 
     return (
-        <div className="flex items-center justify-center md:min-h-[90vh] bg-gray-100">
-            <div className="max-w-4xl p-6 bg-white shadow-lg rounded-lg mt-6 mx-3 lg:mx-0 lg:mt-0">
+        <div className="flex items-center justify-center md:min-h-[90vh]">
+            <div className="max-w-4xl p-6 bg-white rounded-lg mt-6 mx-3 lg:mx-0 lg:mt-0">
                 <h1 className="text-3xl font-bold mb-4">
                     About Us
                 </h1>

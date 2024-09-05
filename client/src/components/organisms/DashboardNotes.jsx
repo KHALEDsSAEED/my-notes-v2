@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Button from '../atoms/Button';
 import ClipLoader from 'react-spinners/ClipLoader';
+import { getNotes, deleteNote, updateNote } from '../../utils/apiService';
 
 // Array of note categories
 const categories = ['work', 'personal', 'study'];
@@ -32,28 +33,15 @@ const DashboardNotes = () => {
             }
 
             try {
-                // Fetch notes from the API for the current user using the user email
-                const response = await fetch(`/api/notes?user=${encodeURIComponent(currentUser.email)}`, {
-                    // Include the Authorization header with the token for authentication
-                    headers: {
-                        'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`,
-                    }
-                });
-
-                // Throw an error if the response is not successful
-                if (!response.ok) {
-                    throw new Error('Failed to fetch notes');
-                }
-                
-                // Parse the response JSON data
-                const data = await response.json();
+                // Fetch notes from the API using the utility function
+                const data = await getNotes(currentUser.email, currentUser);
 
                 // Throw an error if the response format is invalid
                 if (!Array.isArray(data.notes)) {
                     throw new Error('Invalid response format');
                 }
 
-                // Map the notes array to include the note id and set the notes state variable with the data 
+                // Map the notes array to include the note id and set the notes state variable
                 const notesList = data.notes.map(note => ({
                     id: note._id,
                     ...note
@@ -73,7 +61,7 @@ const DashboardNotes = () => {
     }, [currentUser]);
 
     useEffect(() => {
-        // Filter notes based on the search query, selected category, and sort order
+        // Filter notes based on search query, selected category, and sort order
         const filterNotes = () => {
             let filtered = notes;
             if (searchQuery) {
@@ -100,23 +88,12 @@ const DashboardNotes = () => {
         filterNotes();
     }, [searchQuery, selectedCategory, sortOrder, notes]);
 
-    // Delete a note by its id from the database
+    // Delete a note by its id using the API utility function
     const handleDelete = async (noteId) => {
         try {
-            // Send a DELETE request to the API to delete the note by its id
-            const response = await fetch(`/api/notes/${noteId}`, {
-                method: 'DELETE',
-                // Include the Authorization header with the token for authentication
-                headers: {
-                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`,
-                }
-            });
+            await deleteNote(noteId, currentUser);
 
-            if (!response.ok) {
-                throw new Error('Failed to delete note');
-            }
-
-            // Filter out the deleted note from the notes and filteredNotes state variables
+            // Filter out the deleted note from the state
             setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
             setFilteredNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
 
@@ -127,43 +104,27 @@ const DashboardNotes = () => {
         }
     };
 
-    // Set the current note and form values for editing the note 
+    // Set the current note and form values for editing
     const handleEdit = (note) => {
         setCurrentNote(note);
         setFormValues({ title: note.title, text: note.text, category: note.category });
         setIsEditing(true);
     };
 
-    // Update the note in the database with the new form values
+    // Update the note in the database using the API utility function
     const handleUpdate = async (e) => {
         e.preventDefault();
 
         try {
-            // Send a PUT request to the API to update the note by its id
-            const response = await fetch(`/api/notes/${currentNote.id}`, {
-                method: 'PUT',
-                // Include the Authorization header with the token for authentication
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentUser.stsTokenManager.accessToken}`,
-                },
-                body: JSON.stringify(formValues),
-            });
+            const updatedNote = await updateNote(currentNote.id, formValues, currentUser);
 
-            if (!response.ok) {
-                throw new Error('Failed to update note');
-            }
-
-            const updatedNote = await response.json();
-
-            // Update the notes and filteredNotes state variables with the updated note
+            // Update the notes and filteredNotes state variables
             setNotes(prevNotes =>
                 prevNotes.map(note =>
                     note.id === updatedNote._id ? updatedNote : note
                 )
             );
 
-            // Update the notes and filteredNotes state variables with the updated note
             setFilteredNotes(prevNotes =>
                 prevNotes.map(note =>
                     note.id === updatedNote._id ? updatedNote : note
@@ -262,7 +223,6 @@ const DashboardNotes = () => {
                                 <Button
                                     type="submit"
                                     content="Update"
-                                    className="bg-blue-500 hover:bg-blue-600 text-white"
                                 />
                             </form>
                         </div>
@@ -283,12 +243,12 @@ const DashboardNotes = () => {
                                             <div className="flex gap-3">
                                                 <Button
                                                     onClick={() => handleEdit(note)}
-                                                    className="mt-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+                                                    className="mt-2 bg-blue-500 hover:!bg-blue-500 text-white rounded-md"
                                                     content="Edit"
                                                 />
                                                 <Button
                                                     onClick={() => handleDelete(note.id)}
-                                                    className="mt-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
+                                                    className="mt-2 bg-red-500 hover:!bg-red-600 text-white rounded-md"
                                                     content="Delete"
                                                 />
                                             </div>

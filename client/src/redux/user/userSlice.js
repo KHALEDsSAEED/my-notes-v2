@@ -53,7 +53,10 @@ const userSlice = createSlice({
             };
             state.loading = false;
             state.error = null;
-        }
+        },
+        clearUser: (state) => {
+            state.currentUser = null;
+        },
     }
 });
 
@@ -67,6 +70,7 @@ export const {
     signUpFailure,
     signoutSuccess,
     updateProfileSuccess,
+    clearUser,
 } = userSlice.actions;
 
 // Export the reducer for the slice

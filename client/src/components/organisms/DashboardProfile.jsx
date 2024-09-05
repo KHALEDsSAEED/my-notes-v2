@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateProfile } from 'firebase/auth';
+import { updateProfile, deleteUser, sendPasswordResetEmail  } from 'firebase/auth';
 import { toast } from 'react-toastify';
 import { TextInput } from 'flowbite-react';
 import Button from '../atoms/Button';
 import { auth } from '../../firebase/firebase';
-import { updateProfileSuccess } from '../../redux/user/userSlice';
+import { updateProfileSuccess, clearUser } from '../../redux/user/userSlice';
 
 const DashboardProfile = () => {
     const dispatch = useDispatch();
@@ -17,18 +17,50 @@ const DashboardProfile = () => {
     // Update the user profile with the new display name and photo URL
     const handleUpdateProfile = async () => {
         try {
-            // Update the user profile in Firebase Authentication with the new display name and photo URL
             await updateProfile(auth.currentUser, {
                 displayName: displayName,
                 photoURL: photoURL
             });
 
-            // Dispatch the update to the Redux store
             dispatch(updateProfileSuccess({ displayName, photoURL }));
 
             toast.success('Profile updated successfully!');
         } catch (error) {
             toast.error('Error updating profile: ' + error.message);
+        }
+    };
+
+    // Handle user profile deletion
+    const handleDeleteProfile = async () => {
+        try {
+            // Confirm the deletion
+            if (window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+                await deleteUser(auth.currentUser);
+
+                // Clear user data from Redux store
+                dispatch(clearUser());
+
+                toast.success('Profile deleted successfully!');
+                // Optionally, redirect the user or handle the post-deletion logic
+            }
+        } catch (error) {
+            toast.error('Error deleting profile: ' + error.message);
+        }
+    };
+
+    // Send a password reset email to the user
+    const handleResetPassword = async () => {
+        try {
+            if (!currentUser?.email) {
+                toast.error('No email address available for password reset.');
+                return;
+            }
+            
+            await sendPasswordResetEmail(auth, currentUser.email);
+
+            toast.success('Password reset email sent! Check your inbox.');
+        } catch (error) {
+            toast.error('Error sending password reset email: ' + error.message);
         }
     };
 
@@ -65,7 +97,9 @@ const DashboardProfile = () => {
                         placeholder="Enter photo URL"
                     />
 
-                    <Button onClick={handleUpdateProfile} content='Update Profile'/>
+                    <Button onClick={handleUpdateProfile} content='Update Profile' />
+                    <Button onClick={handleDeleteProfile} content='Delete Profile' className="bg-red-500 hover:!bg-red-600 w-full "/>
+                    <Button onClick={handleResetPassword} content='Reset Password' className="bg-blue-500 hover:!bg-blue-600 w-full"/>
                 </div>
             </div>
         </div>

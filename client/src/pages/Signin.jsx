@@ -5,7 +5,7 @@ import Button from '../components/atoms/Button';
 import { Label, TextInput } from 'flowbite-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInSuccess, signInFailure, signInStart } from '../redux/user/userSlice';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,42 +16,56 @@ const Signin = () => {
 
     const { loading } = useSelector((state) => state.user);
 
-    // state variable to store the form data
+    // state variables for form data and form visibility
     const [formData, setFormData] = useState({});
+    const [showResetForm, setShowResetForm] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
 
     // function to handle form input changes
     const handleChange = (e) => {
         setFormData({
-            ...formData, // keep all other form data
-            [e.target.id]: e.target.value.trim() // update the form data with the new value
+            ...formData,
+            [e.target.id]: e.target.value.trim()
         });
     };
 
-    // function to handle form submission
+    // function to handle form submission for sign in
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent the default form submission
-
-        // Destructure the email and password from the form data
+        e.preventDefault();
         const { email, password } = formData;
 
-        // Check if the email and password are not empty
         if (!email || !password) {
-            toast.error('Please fill in all fields.'); // Display error message
+            toast.error('Please fill in all fields.');
             return;
         }
 
-        dispatch(signInStart()); // Start the sign-in process
+        dispatch(signInStart());
 
         try {
-            // Sign in the user using Firebase authentication
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log(userCredential);
-            dispatch(signInSuccess(userCredential.user)); // Update Redux state on success
-            toast.success('Sign in successful!'); // Display success message
-            navigate('/dashboard?tab=profile'); // Navigate to the dashboard on success
+            dispatch(signInSuccess(userCredential.user));
+            toast.success('Sign in successful!');
+            navigate('/dashboard?tab=profile');
         } catch (err) {
-            dispatch(signInFailure(err.message)); // Update Redux state on failure
-            toast.error('Error during sign in: ' + err.message); // Display error message
+            dispatch(signInFailure(err.message));
+            toast.error('Error during sign in: ' + err.message);
+        }
+    };
+
+    // function to handle password reset
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+        if (!resetEmail) {
+            toast.error('Please enter your email address.');
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, resetEmail);
+            toast.success('Password reset email sent! Please check your inbox.');
+            setShowResetForm(false); // Hide the reset form
+        } catch (err) {
+            toast.error('Error sending reset email: ' + err.message);
         }
     };
 
@@ -68,42 +82,77 @@ const Signin = () => {
                 </div>
 
                 <div className="flex-1">
-                    <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
-                        <div>
-                            <Label value='Your Email' />
-                            <TextInput
-                                type='email'
-                                placeholder='Email'
-                                id='email'
-                                onChange={handleChange}
+                    {!showResetForm ? (
+                        <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+                            <div>
+                                <Label value='Your Email' />
+                                <TextInput
+                                    type='email'
+                                    placeholder='Email'
+                                    id='email'
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div>
+                                <Label value='Your Password' />
+                                <TextInput
+                                    type='password'
+                                    placeholder='*********'
+                                    id='password'
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <Button
+                                type='submit'
+                                content='Sign In'
+                                disabled={loading}
                             />
-                        </div>
-                        <div>
-                            <Label value='Your Password' />
-                            <TextInput
-                                type='password'
-                                placeholder='*********'
-                                id='password'
-                                onChange={handleChange}
+                            <div className="flex flex-col gap-2 text-dm mt-5">
+                                <div className="">
+                                    <span>Forget Password? </span>
+                                    <span onClick={() => setShowResetForm(true)}
+                                            className='text-blue-500 cursor-pointer'
+                                    >
+                                        Reset
+                                    </span>
+                                </div>
+                                <div className="">
+                                    <span>Dont have an account? </span>
+                                    <Link to='/sign-up' className='text-blue-500'>
+                                        Sign Up
+                                    </Link>
+                                </div>
+                            </div>
+                        </form>
+                    ) : (
+                        <form className='flex flex-col gap-4' onSubmit={handleResetPassword}>
+                            <div>
+                                <Label value='Enter your email address' />
+                                <TextInput
+                                    type='email'
+                                    placeholder='Email'
+                                    value={resetEmail}
+                                    onChange={(e) => setResetEmail(e.target.value.trim())}
+                                />
+                            </div>
+                            <Button
+                                type='submit'
+                                content='Send Reset Link'
+                                disabled={loading}
                             />
-                        </div>
-                        <Button
-                            type='submit'
-                            content='Sign In'
-                            disabled={loading}
-                        />
-                    </form>
-
-                    <div className="flex gap-2 text-sm mt-5">
-                        <span>Dont have an account?</span>
-                        <Link to='/sign-up' className='text-blue-500'>
-                            Sign Up
-                        </Link>
-                    </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowResetForm(false)}
+                                className='text-blue-500 mt-4'
+                            >
+                                Back to Sign In
+                            </button>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default Signin;

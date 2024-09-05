@@ -3,92 +3,49 @@ import { useSelector } from 'react-redux';
 import Button from '../atoms/Button';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { createNote } from '../../utils/apiService';
 
 const DashboardNewNote = () => {
-
-    // Initialize state for loading status
     const [loading, setLoading] = useState(false);
-
     const navigate = useNavigate();
-
-    // Initialize state for form data
-    const [formData, setFormData] = useState({
-        category: '',
-        title: '',
-        text: '',
-    });
-
-    // Get the currentUser from the Redux store
+    const [formData, setFormData] = useState({ category: '', title: '', text: '' });
     const { currentUser } = useSelector((state) => state.user);
 
-    // Function to handle form input changes
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
+        setFormData((prev) => ({
+            ...prev,
             [e.target.name]: e.target.value,
-        });
+        }));
     };
 
-    // Function to handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Ensure the user is logged in
         if (!currentUser) {
-            toast.error('Please login to add a new note'); // Display error message
-            return;
+            return toast.error('Please login to add a new note');
         }
 
-        const token = currentUser.stsTokenManager.accessToken; // Extract the token
+        const { category, title, text } = formData;
+        if (!category || !title || !text) {
+            return toast.error('Please fill in all fields');
+        }
 
-        // Prepare data to be stored
+        setLoading(true);
         const noteData = {
-            category: formData.category,
-            title: formData.title,
-            text: formData.text,
-            user: currentUser.email, // Get email from Redux store
-            date: new Date().toISOString(), // Add the current date in ISO format
+            ...formData,
+            user: currentUser.email,
+            date: new Date().toISOString(),
         };
 
-        // Check if any field is empty and display an error message
-        if (!noteData.category || !noteData.title || !noteData.text) {
-            toast.error('Please fill in all fields');
-            return;
-        }
-
-        // Set loading to true to display a loading message to the user
-        setLoading(true);
         try {
-            // Make a POST request to the API route to create a new note
-            const response = await fetch('/api/notes', {
-                method: 'POST',
-                // Include the token in the request headers to authenticate the user 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(noteData),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to create note');
-            }
-
-            // Parse the response as JSON
-            const data = await response.json();
-            toast.success('Note added successfully'); // Display success message
-            setLoading(false); // Set loading to false after successful submission
-            navigate('/dashboard?tab=notes'); // Redirect to dashboard
-
-            // Clear form after submission
-            setFormData({
-                category: '',
-                title: '',
-                text: '',
-            });
+            await createNote(noteData, currentUser);  // Use createNote to make the API request
+            toast.success('Note added successfully');
+            setFormData({ category: '', title: '', text: '' });
+            navigate('/dashboard?tab=notes');
         } catch (error) {
-            toast.error('Error adding note: ' + error.message); // Display error message
-            setLoading(false); // Ensure loading is stopped in case of error
+            toast.error(`Error adding note: ${error.message}`);
+        } finally {
+            setLoading(false);
         }
     };
 

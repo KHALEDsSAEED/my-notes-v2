@@ -1,34 +1,40 @@
 import Note from '../models/note.model.js';
-import { errorHandler } from '../utils/error.js'; 
+import { errorHandler } from '../utils/error.js';
 
 // Create a new note in the database
 export const createNote = async (req, res, next) => {
 
-    // Get the category, title, text, and user from the request body
     const { category, title, text, user } = req.body;
 
     // Check if any of the required fields are missing
     if (!category || !title || !text || !user) {
-        // Return an error response if any field is missing
         return next(errorHandler(400, 'All fields are required'));
     }
 
-    // Create a new note with the provided fields
-    const newNote = new Note({
-        category,
-        title,
-        text,
-        user,
-    });
-
     try {
+        // Check if a note with the same title already exists for the user
+        const existingNote = await Note.findOne({ title, user });
+
+        // If a note with the same title exists, return an error
+        if (existingNote) {
+            return next(errorHandler(400, 'A note with this title already exists'));
+        }
+
+        // Create a new note if the title is unique
+        const newNote = new Note({
+            category,
+            title,
+            text,
+            user,
+        });
+
         // Save the new note to the database
         const savedNote = await newNote.save();
         res.status(201).json(savedNote); // Return the saved note as a response
     } catch (err) {
         next(errorHandler(500, 'Server error')); // Return a server error response
     }
-}
+};
 
 // Get all notes from the database for a specific user
 export const getNotes = async (req, res, next) => {
