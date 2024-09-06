@@ -1,10 +1,14 @@
 describe('Home Page Tests', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173/'); // Visit the home page
+    cy.visit('http://localhost:5173/');
+  });
+
+  it('should display the header', () => {
+    cy.get('[data-testid="header"]').should('be.visible');
   });
 
   it('should display the correct page title', () => {
-    cy.title().should('eq', 'My Notes'); // Replace with your actual page title
+    cy.title().should('eq', 'My Notes');
   });
 
   it('should display the main heading and text content', () => {
@@ -21,6 +25,12 @@ describe('Home Page Tests', () => {
   it('should be able to display content in different viewports', () => {
     // Large screen
     cy.viewport('macbook-15');
+    cy.get('h1').should('be.visible');
+    cy.get('p').should('be.visible');
+    cy.get('img').should('be.visible');
+
+    // Medium screen
+    cy.viewport('ipad-2');
     cy.get('h1').should('be.visible');
     cy.get('p').should('be.visible');
     cy.get('img').should('be.visible');

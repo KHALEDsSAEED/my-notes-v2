@@ -25,15 +25,15 @@ function Dashboard() {
 
     return (
         <div className=" flex flex-col md:flex-row h-[90vh] bg-gray-100">
-            <div className="md:w-56">
+            <div data-testid="dashboard-sidebar" className="md:w-56">
                 <DashSidebar />
             </div>
             
             {/* Render the appropriate component based on the tab value */}
             <div className="w-full">
-                {tab === "profile" && <DashboardProfile />}
-                {tab === "notes" && <DashboardNotes />}
-                {tab === "new-note" && <DashboardNewNote />}
+                {tab === "profile" && <DashboardProfile/>}
+                {tab === "notes" && <DashboardNotes/>}
+                {tab === "new-note" && <DashboardNewNote/>}
             </div>
         </div>
     )

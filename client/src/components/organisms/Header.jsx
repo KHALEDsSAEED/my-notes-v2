@@ -7,6 +7,7 @@ import Button from "../atoms/Button";
 import { useSelector, useDispatch } from 'react-redux';
 import { signOutUser } from '../../redux/user/userSlice';
 
+
 const Header = () => {
     const path = useLocation().pathname;
     const dispatch = useDispatch();
@@ -22,11 +23,11 @@ const Header = () => {
     };
 
     return (
-        <Navbar className="border-b-2 sticky top-0 h-[10vh] z-30">
-            <Link to='/' className='self-center whitespace-nowrap text-xl font-semibold dark:text-white'>
+        <Navbar data-testid="header" className="border-b-2 sticky top-0 h-[10vh] z-30">
+            <Link data-testid="logo" to='/' className='self-center whitespace-nowrap text-xl font-semibold dark:text-white'>
                 <Logo />
             </Link>
-            <div className='flex gap-2 md:order-2'>
+            <div className='flex gap-2 md:order-2'  data-testid="nav">
                 {currentUser ? (
                     <Dropdown className='z-3 border-2 rounded-sm border-[#fecb2e]' arrowIcon={false} inline label={
                         <Avatar
@@ -54,7 +55,7 @@ const Header = () => {
                 )}
                 <Navbar.Toggle />
             </div>
-            <Navbar.Collapse className="z-30 md:bg-transparent bg-white md:border-0 border-2 rounded-sm border-[#fecb2e]">
+            <Navbar.Collapse  data-testid="menu" className="z-30 md:bg-transparent bg-white md:border-0 border-2 rounded-sm border-[#fecb2e]">
                 <Navbar.Link as={'div'} className="hover:bg-slate-200">
                     <Link
                         to='/'

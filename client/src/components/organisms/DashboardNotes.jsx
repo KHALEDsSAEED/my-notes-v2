@@ -148,7 +148,7 @@ const DashboardNotes = () => {
     };
 
     return (
-        <div className="p-4 bg-gray-100">
+        <div  data-testid="dashboard-notes" className="p-4 bg-gray-100">
             {loading && <div className="flex justify-center items-center h-64"><ClipLoader color="#000" loading={loading} size={50} /></div>}
             {error && <p className="text-red-500">{error}</p>}
 

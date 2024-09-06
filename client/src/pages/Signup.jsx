@@ -58,16 +58,16 @@ const Signup = () => {
     return (
         <div className='min-h-screen mt-20'>
             <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
-                <div className="flex-1">
-                    <Link to='/' className='font-bold dark:text-white text-4xl'>
+                <div data-testid="text-container" className="flex-1">
+                    <Link data-testid="text-logo" to='/' className='font-bold dark:text-white text-4xl'>
                         <Logo />
                     </Link>
-                    <p className='text-sm mt-5'>
-                        Welcome please sign up to continue
+                    <p data-testid="text-content" className='text-sm mt-5'>
+                        Welcome, please sign up to continue
                     </p>
                 </div>
 
-                <div className="flex-1">
+                <div data-testid="form-container" className="flex-1">
                     <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
                         <div>
                             <Label value='Your Email' />
@@ -93,9 +93,9 @@ const Signup = () => {
                             disabled={loading}
                         />
                     </form>
-                    <div className="flex gap-2 text-sm mt-5">
+                    <div data-testid="container" className="flex gap-2 text-sm mt-5">
                         <span>Have an Account?</span>
-                        <Link to='/sign-in' className='text-blue-500'>
+                        <Link data-testid="link" to='/sign-in' className='text-blue-500'>
                             Sign In
                         </Link>
                     </div>

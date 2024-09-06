@@ -65,7 +65,7 @@ const DashboardProfile = () => {
     };
 
     return (
-        <div className="flex justify-center items-center mt-10 md:mt-0 md:min-h-[90vh] bg-gray-100">
+        <div data-testid="dashboard-profile" className="flex justify-center items-center mt-10 md:mt-0 md:min-h-[90vh] bg-gray-100">
             <div className="max-w-lg w-full text-center shadow-lg p-6 rounded-lg">
                 <h1 className="my-2 text-center font-semibold text-3xl">Profile</h1>
                 <div className="">

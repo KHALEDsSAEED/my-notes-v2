@@ -63,7 +63,7 @@ const Signin = () => {
         try {
             await sendPasswordResetEmail(auth, resetEmail);
             toast.success('Password reset email sent! Please check your inbox.');
-            setShowResetForm(false); // Hide the reset form
+            setShowResetForm(false);
         } catch (err) {
             toast.error('Error sending reset email: ' + err.message);
         }
@@ -72,16 +72,16 @@ const Signin = () => {
     return (
         <div className='min-h-screen mt-20'>
             <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
-                <div className="flex-1">
-                    <Link to='/' className='font-bold dark:text-white text-4xl'>
+                <div data-testid='text-container' className="flex-1">
+                    <Link data-testid="text-logo" to='/' className='font-bold dark:text-white text-4xl'>
                         <Logo />
                     </Link>
-                    <p className='text-sm mt-5'>
+                    <p data-testid='text-content' className='text-sm mt-5'>
                         Welcome, please sign in to continue
                     </p>
                 </div>
 
-                <div className="flex-1">
+                <div data-testid='form-container' className="flex-1">
                     {!showResetForm ? (
                         <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
                             <div>

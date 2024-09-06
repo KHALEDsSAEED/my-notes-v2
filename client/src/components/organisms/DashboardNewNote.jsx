@@ -50,7 +50,7 @@ const DashboardNewNote = () => {
     };
 
     return (
-        <div className="flex justify-center items-center md:min-h-[90vh] px-4 py-6 bg-gray-100">
+        <div data-testid="dashboard-new-note" className="flex justify-center items-center md:min-h-[90vh] px-4 py-6 bg-gray-100">
             <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white p-6 rounded-lg shadow-lg">
                 <div className="mb-4">
                     <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category:</label>
